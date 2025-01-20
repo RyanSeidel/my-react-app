@@ -1,4 +1,4 @@
-name: Debug Workflow
+name: Deploy React App
 
 on:
   push:
@@ -6,19 +6,30 @@ on:
       - main
 
 jobs:
-  debug-job:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Print directory structure
-      run: |
-        pwd
-        ls -R
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.17.1
 
-    - name: Verify my-website folder
-      run: |
-        cd my-website
-        ls
+      - name: Install Dependencies and Build
+        run: |
+          cd my-website
+          npm install
+          npm run build
+
+      - name: Deploy to Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 192.168.1.212 >> ~/.ssh/known_hosts
+          scp -r my-website/build/* nuttyryan@192.168.1.212:~/react-app/
