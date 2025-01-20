@@ -20,6 +20,7 @@ jobs:
 
     - name: Install dependencies and build
       run: |
+        cd my-website
         npm install
         npm run build
 
@@ -30,4 +31,4 @@ jobs:
         mkdir -p ~/.ssh
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        scp -r build/* user@<your-server-ip>:~/react-app/
+        scp -r my-website/build/* user@<your-server-ip>:~/react-app/
